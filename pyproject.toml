@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openclaw-memory-system"
+version = "0.1.0"
+description = "A memory system for OpenClaw agents — palace structure, layered memory, MCP tools"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Matt Sureham", email = "surehamhuang@gmail.com" }
+]
+keywords = ["openclaw", "memory", "ai", "mcp", "palace"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "chromadb>=0.4.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "black>=23.0",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+openclaw-memory = "openclaw_memory.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/MattSureham/openclaw-memory-system"
+Repository = "https://github.com/MattSureham/openclaw-memory-system"
+
+[tool.hatch.build.targets.wheel]
+packages = ["openclaw_memory"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
