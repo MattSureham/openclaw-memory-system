@@ -217,20 +217,38 @@ class Palace:
     def wings(self) -> Iterator[Wing]:
         for wing_path in self.root.iterdir():
             if wing_path.is_dir():
-                yield Wing(name=wing_path.name, path=wing_path)
+                meta_file = wing_path / ".wingmeta"
+                if meta_file.exists():
+                    name = meta_file.read_text().strip()
+                else:
+                    name = wing_path.name
+                yield Wing(name=name, path=wing_path)
 
     def wing(self, wing_name: str) -> Wing:
         """Get or create a wing by name."""
         safe_name = self._safe_name(wing_name)
-        return Wing(name=safe_name, path=self.root / safe_name)
+        wing_path = self.root / safe_name
+        # Preserve original casing via metadata file
+        meta_file = wing_path / ".wingmeta"
+        if meta_file.exists():
+            stored_name = meta_file.read_text().strip()
+            return Wing(name=stored_name, path=wing_path)
+        # New wing — create dir and store original name
+        wing_path.mkdir(parents=True, exist_ok=True)
+        meta_file.write_text(wing_name)
+        return Wing(name=wing_name, path=wing_path)
 
     def has_wing(self, wing_name: str) -> bool:
-        return (self.root / wing_name).exists()
+        return (self.root / self._safe_name(wing_name)).exists()
 
     def create_wing(self, wing_name: str, halls: Optional[list[str]] = None) -> Wing:
         """Create a wing with default halls."""
-        wing = self.wing(wing_name)
-        wing.path.mkdir(parents=True, exist_ok=True)
+        safe_name = self._safe_name(wing_name)
+        wing_path = self.root / safe_name
+        wing_path.mkdir(parents=True, exist_ok=True)
+        # Store original name in metadata file for case-preserving lookups
+        (wing_path / ".wingmeta").write_text(wing_name)
+        wing = Wing(name=wing_name, path=wing_path)
         for hall_name in (halls or DEFAULT_HALLS):
             wing.create_hall(hall_name)
         return wing

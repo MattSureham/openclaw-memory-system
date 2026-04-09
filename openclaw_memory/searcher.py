@@ -91,8 +91,8 @@ class Searcher:
 
         for room in self.palace.all_rooms():
             room_name_lower = room.name.lower()
+            content = room.read()
             if query_lower in room_name_lower:
-                content = room.read()
                 results.append(
                     SearchResult(
                         text=f"## {room.name}\n{content[:300]}",
